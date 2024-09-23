@@ -61,7 +61,7 @@ import java.util.Timer;
 
 public class KelpieTempOnBotNoUse extends LinearOpMode {
 
-    // Declare OpMode members.
+    // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor FLMotor = null;
     private DcMotor FRMotor = null;
