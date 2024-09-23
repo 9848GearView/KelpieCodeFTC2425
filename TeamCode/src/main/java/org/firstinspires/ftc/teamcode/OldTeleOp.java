@@ -59,7 +59,7 @@ import java.util.Timer;
 
 @TeleOp(name="Y'know that one spongebob song thats the guitar and its sad and like, womp womp, womp womp womp, womp womp, womp WOMP^")
 
-public class KelpieTempOnBotNoUse extends LinearOpMode {
+public class OldTeleOp extends LinearOpMode {
 
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
