@@ -57,7 +57,7 @@ import java.util.Timer;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Y'know that one spongebob song thats the guitar and its sad and like, womp womp, womp womp womp, womp womp, womp WOMP^")
+@TeleOp(name="Are ya ready kids? AYE AYE CAPTAIN! I Can't hear you! AYE AYE CAPTAIN! OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
 
 public class OldTeleOp extends LinearOpMode {
 
@@ -80,9 +80,11 @@ public class OldTeleOp extends LinearOpMode {
     private boolean oldLBumper = true;
     private boolean oldRBumper = true;
     private boolean isArmMoving = false;
+    private boolean isWristMoving = false;
 
     private int index = 0;
     private int armIndex = 0;
+    private int wristIndex = 1;
 
     final double IntakeCollect    = -1.0;
     final double IntakeOff        =  0.0;
@@ -94,6 +96,7 @@ public class OldTeleOp extends LinearOpMode {
     final double[] LEServoPositions = {0.0, 0.5, 0.8, 1.0};
     final double[] REServoPositions = {0.0, 0.5, 0.8, 1.0};
     final double[] WEServoPositions = {0.0, 0.5, 0.8, 1.0};
+    final double[] WristServoPositions = {0.9, 0.6, 0.2};
 
 
     @Override
@@ -108,12 +111,19 @@ public class OldTeleOp extends LinearOpMode {
                 isArmMoving = val;
             }
         }
+        class setIsWristMoving extends TimerTask{
+            boolean val;
+            public setIsWristMoving(boolean v){ this.val = v; }
+            public void run() { isWristMoving = val; }
+        }
 
         class LowerArmToCertainServoPosition extends TimerTask {
             int i;
+
             public LowerArmToCertainServoPosition(int i) {
                 this.i = i;
             }
+
             public void run() {
                 LeftElbowServo.setPosition(LEServoPositions[i]);
                 RightElbowServo.setPosition(REServoPositions[i]);
@@ -162,7 +172,7 @@ public class OldTeleOp extends LinearOpMode {
         RightSlide.setDirection(DcMotor.Direction.FORWARD);
         LeftElbowServo.setDirection(Servo.Direction.FORWARD);
         RightElbowServo.setDirection(Servo.Direction.REVERSE);
-        WristServo.setDirection(Servo.Direction.REVERSE);
+        WristServo.setDirection(Servo.Direction.FORWARD);
         IntakeServo.setDirection(CRServo.Direction.FORWARD);
 
         FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -185,6 +195,7 @@ public class OldTeleOp extends LinearOpMode {
         runtime.reset();
 
         int armIndex = 0;
+        WristServo.setPosition(WristServoPositions[1]);
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
@@ -288,9 +299,30 @@ public class OldTeleOp extends LinearOpMode {
             boolean dPadDownPressed = gamepad2.dpad_down;
 
             IntakeServo.setPower(gamepad2.dpad_up ? -1.0 : gamepad2.dpad_up ? 0.5 : 0);
-            WristServo.setPosition(gamepad2.dpad_left ? 1.0 : gamepad2.dpad_right ? 0 : 0.5);
-
-
+            if(gamepad2.dpad_left && !isWristMoving) {
+                new setIsWristMoving(true).run();
+                if (wristIndex == 2) {
+                    WristServo.setPosition(WristServoPositions[1]);
+                }else if (wristIndex == 1) {
+                    WristServo.setPosition(WristServoPositions[0]);
+                }else{
+                    wristIndex++;
+                }
+                wristIndex--;
+                timer.schedule(new setIsWristMoving(false), 300);
+            }
+            if(gamepad2.dpad_right && !isWristMoving) {
+                new setIsWristMoving(true).run();
+                if (wristIndex == 0) {
+                    WristServo.setPosition(WristServoPositions[1]);
+                } else if (wristIndex == 1) {
+                    WristServo.setPosition(WristServoPositions[2]);
+                }else {
+                    wristIndex--;
+                }
+                wristIndex++;
+                timer.schedule(new setIsWristMoving(false), 300);
+            }
 
             // Show the elapsed game time and wheel power.
             //   telemetry.addData("Status", "Run Time: " + runtime.toString());
