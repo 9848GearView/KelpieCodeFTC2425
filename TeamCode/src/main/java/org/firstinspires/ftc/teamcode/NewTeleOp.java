@@ -38,6 +38,8 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.constants.TeleOpServoConstants;
+
 import java.lang.Math;
 
 import java.util.TimerTask;
@@ -59,7 +61,7 @@ import java.util.Timer;
 
 @TeleOp(name="Are ya ready kids? AYE AYE CAPTAIN! I Can't hear you! AYE AYE CAPTAIN! OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
 
-public class OldTeleOp extends LinearOpMode {
+public class NewTeleOp extends LinearOpMode {
 
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
@@ -73,6 +75,9 @@ public class OldTeleOp extends LinearOpMode {
     private Servo WristServo = null;
     private Servo LeftElbowServo = null;
     private Servo RightElbowServo = null;
+
+    private int index = 0;
+
     private boolean oldCrossPressed = true;
     private boolean oldTrianglePressed = true;
     private boolean oldCirclePressed = true;
@@ -82,22 +87,14 @@ public class OldTeleOp extends LinearOpMode {
     private boolean oldLBumper = true;
     private boolean oldRBumper = true;
     private boolean isArmMoving = false;
-    private boolean isWristMoving = false;
 
-    private int index = 3;
-    private int wristIndex = 0;
+    private double[] LEServoPositions = TeleOpServoConstants.LEServoPositions;
+    private double[] REServoPositions = TeleOpServoConstants.REServoPositions;
+    private double[] WServoPositions = TeleOpServoConstants.WServoPositions;
+    private double[] IServoPositions = TeleOpServoConstants.IServoPositions;
 
-    final double IntakeCollect    = -1.0;
-    final double IntakeOff        =  0.0;
-    final double IntakeDeposit    =  0.5;
 
     private final int DELAY_BETWEEN_MOVES = 100;
-
-    final double[] IntakeServoPower = {-1.0, 0.5, 0.0};
-    final double[] LEServoPositions = {0.9, 0.8, 0.5, 0.0};
-    final double[] REServoPositions = {0.9, 0.8, 0.5, 0.0};
-    final double[] WEServoPositions = {0.0, 0.5, 0.8, 1.0};
-    final double[] WristServoPositions = {0.2, 0.6, 0.9};
 
 
     @Override
@@ -112,45 +109,22 @@ public class OldTeleOp extends LinearOpMode {
                 isArmMoving = val;
             }
         }
-        class setIsWristMoving extends TimerTask{
-            boolean val;
-            public setIsWristMoving(boolean v){ this.val = v; }
-            public void run() { isWristMoving = val; }
-        }
 
         class LowerArmToCertainServoPosition extends TimerTask {
             int i;
-
             public LowerArmToCertainServoPosition(int i) {
                 this.i = i;
             }
-
             public void run() {
                 LeftElbowServo.setPosition(LEServoPositions[i]);
                 RightElbowServo.setPosition(REServoPositions[i]);
 
                 telemetry.addData("index", i);
                 telemetry.update();
-                //                 sleep(1000);
-                index = i;
+//                sleep(1000);
             }
         }
-        class MoveWristServoPosition extends TimerTask {
-            int i;
 
-            public MoveWristServoPosition(int i) {
-                this.i = i;
-            }
-
-            public void run() {
-                WristServo.setPosition(WristServoPositions[i]);
-
-                telemetry.addData("Wrist Index", i);
-                telemetry.update();
-                //                 sleep(1000);
-                wristIndex = i;
-            }
-        }
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -176,7 +150,6 @@ public class OldTeleOp extends LinearOpMode {
         BRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LeftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -208,9 +181,6 @@ public class OldTeleOp extends LinearOpMode {
 
 
         // Wait for the game to start (driver presses START)
-        LeftElbowServo.setPosition(LEServoPositions[3]);
-        RightElbowServo.setPosition(REServoPositions[3]);
-        WristServo.setPosition(WristServoPositions[0]);
         waitForStart();
         runtime.reset();
 
@@ -287,72 +257,32 @@ public class OldTeleOp extends LinearOpMode {
             boolean trianglePressed = gamepad2.triangle;
             boolean squarePressed = gamepad2.square;
             boolean crossPressed = gamepad2.cross;
-            if (index == 3) {
-                if (circlePressed && !oldCirclePressed && !isArmMoving) {
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new MoveWristServoPosition(1), 2 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new LowerArmToCertainServoPosition(0), 8 * DELAY_BETWEEN_MOVES);
 
-//                    index = 0;
-                    timer.schedule(new setIsArmMoving(false), 8 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsWristMoving(false), 8 * DELAY_BETWEEN_MOVES);
+            if (index == 0) {
+                if (crossPressed && !oldCrossPressed && !isArmMoving) {
+                    //Code For Intaking Position
+                    index = 1;
+                } else if (circlePressed && !oldCirclePressed && !isArmMoving) {
+                    //Code For Scoring High Position
+                    index = 2;
+                } else if (squarePressed && !oldSquarePressed && !isArmMoving) {
+                    //Code For Scoring Low Position
+                    index = 3;
                 }
-            } else if (index == 0) {
-                if (circlePressed && !oldCirclePressed && !isArmMoving) {
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new MoveWristServoPosition(1), 2 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new LowerArmToCertainServoPosition(1), 8 * DELAY_BETWEEN_MOVES);
-//                    index = 1;
-                    timer.schedule(new setIsArmMoving(false), 8 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsWristMoving(false), 8 * DELAY_BETWEEN_MOVES);
-                } else if (trianglePressed && !oldTrianglePressed && !isArmMoving) {
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new MoveWristServoPosition(1), 2 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new LowerArmToCertainServoPosition(2), 8 * DELAY_BETWEEN_MOVES);
-//                    index = 2;
-                    timer.schedule(new setIsArmMoving(false), 8 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsWristMoving(false), 8 * DELAY_BETWEEN_MOVES);
-                }
-            } else if (index == 1 || index == 2) {
-                if (circlePressed && !oldCirclePressed && !isArmMoving) {
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new LowerArmToCertainServoPosition(3), 8 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new MoveWristServoPosition(1), 2 * DELAY_BETWEEN_MOVES);
-//                    index = 3;
-                    timer.schedule(new setIsArmMoving(false), 8 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsWristMoving(false), 8 * DELAY_BETWEEN_MOVES);
+            } else if (index == 1 || index == 2 || index == 3) {
+                IntakeServo.setPower(gamepad2.dpad_up ? -1.0 : gamepad2.dpad_down ? 1.0 : 0);
+                if (trianglePressed && !oldTrianglePressed && !isArmMoving) {
+                    //Code for back to neutral postion
+                    index = 0;
                 }
             }
 
 
-            boolean dPadUpPressed = gamepad2.dpad_up;
-            boolean dPadDownPressed = gamepad2.dpad_down;
-            boolean intakeMoving = dPadDownPressed || dPadUpPressed;
-            IntakeServo.setPower(gamepad2.dpad_up ? -1.0 : gamepad2.dpad_down ? 1.0 : 0);
-            if(gamepad2.dpad_left && !oldLeftDpadPressed && !isWristMoving && !intakeMoving) {
-                new setIsWristMoving(true).run();
-                if (wristIndex == 2) {
-                    WristServo.setPosition(WristServoPositions[1]);
-                }else if (wristIndex == 1) {
-                    WristServo.setPosition(WristServoPositions[0]);
-                }else{
-                    wristIndex++;
-                }
-                wristIndex--;
-                timer.schedule(new setIsWristMoving(false), 700);
-            }
-            if(gamepad2.dpad_right  && !oldRightDpadPressed && !isWristMoving && !intakeMoving) {
-                new setIsWristMoving(true).run();
-                if (wristIndex == 0) {
-                    WristServo.setPosition(WristServoPositions[1]);
-                } else if (wristIndex == 1) {
-                    WristServo.setPosition(WristServoPositions[2]);
-                }else {
-                    wristIndex--;
-                }
-                wristIndex++;
-                timer.schedule(new setIsWristMoving(false), 700);
-            }
+
+
+
+
+
 
             // Show the elapsed game time and wheel power.
             //   telemetry.addData("Status", "Run Time: " + runtime.toString());
