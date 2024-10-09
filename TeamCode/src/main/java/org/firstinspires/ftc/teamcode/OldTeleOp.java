@@ -93,7 +93,7 @@ public class OldTeleOp extends LinearOpMode {
 
     private final int DELAY_BETWEEN_MOVES = 100;
 
-    final double[] IntakeServoPower = {-1.0, 0.5, 0.0};
+    final double[] IntakeServoPower = {-1.0, 1.0, 0.0};
     final double[] LEServoPositions = {0.9, 0.8, 0.5, 0.0};
     final double[] REServoPositions = {0.9, 0.8, 0.5, 0.0};
     final double[] WEServoPositions = {0.0, 0.5, 0.8, 1.0};
@@ -332,9 +332,9 @@ public class OldTeleOp extends LinearOpMode {
             if(gamepad2.dpad_left && !oldLeftDpadPressed && !isWristMoving && !intakeMoving) {
                 new setIsWristMoving(true).run();
                 if (wristIndex == 2) {
-                    WristServo.setPosition(WristServoPositions[1]);
+                    WristServo.setPosition(0.5);
                 }else if (wristIndex == 1) {
-                    WristServo.setPosition(WristServoPositions[0]);
+                    WristServo.setPosition(0.2);
                 }else{
                     wristIndex++;
                 }
@@ -344,9 +344,9 @@ public class OldTeleOp extends LinearOpMode {
             if(gamepad2.dpad_right  && !oldRightDpadPressed && !isWristMoving && !intakeMoving) {
                 new setIsWristMoving(true).run();
                 if (wristIndex == 0) {
-                    WristServo.setPosition(WristServoPositions[1]);
+                    WristServo.setPosition(0.5);
                 } else if (wristIndex == 1) {
-                    WristServo.setPosition(WristServoPositions[2]);
+                    WristServo.setPosition(0.9);
                 }else {
                     wristIndex--;
                 }

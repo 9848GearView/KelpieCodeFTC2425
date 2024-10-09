@@ -29,12 +29,10 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -59,9 +57,9 @@ import java.util.Timer;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Are ya ready kids? AYE AYE CAPTAIN! I Can't hear you! AYE AYE CAPTAIN! OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+@TeleOp(name="Siren TeleOp")
 
-public class NewTeleOp extends LinearOpMode {
+public class SirenTeleOp extends LinearOpMode {
 
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
@@ -77,16 +75,20 @@ public class NewTeleOp extends LinearOpMode {
     private Servo RightElbowServo = null;
 
     private int index = 0;
+    private int wristIndex = 0;
 
     private boolean oldCrossPressed = true;
     private boolean oldTrianglePressed = true;
     private boolean oldCirclePressed = true;
     private boolean oldSquarePressed = true;
+    private boolean oldUpDpadPressed = true;
+    private boolean oldDownDpadPressed = true;
     private boolean oldLeftDpadPressed = true;
     private boolean oldRightDpadPressed = true;
     private boolean oldLBumper = true;
     private boolean oldRBumper = true;
     private boolean isArmMoving = false;
+    private boolean isWristMoving = false;
 
     private double[] LEServoPositions = TeleOpServoConstants.LEServoPositions;
     private double[] REServoPositions = TeleOpServoConstants.REServoPositions;
@@ -109,6 +111,11 @@ public class NewTeleOp extends LinearOpMode {
                 isArmMoving = val;
             }
         }
+        class setIsWristMoving extends TimerTask{
+            boolean val;
+            public setIsWristMoving(boolean v){ this.val = v; }
+            public void run() { isWristMoving = val; }
+        }
 
         class LowerArmToCertainServoPosition extends TimerTask {
             int i;
@@ -122,6 +129,23 @@ public class NewTeleOp extends LinearOpMode {
                 telemetry.addData("index", i);
                 telemetry.update();
 //                sleep(1000);
+                index = i;
+            }
+        }
+        class MoveWristServoPosition extends TimerTask {
+            int i;
+
+            public MoveWristServoPosition(int i) {
+                this.i = i;
+            }
+
+            public void run() {
+                WristServo.setPosition(WServoPositions[i]);
+
+                telemetry.addData("Wrist Index", i);
+                telemetry.update();
+                //   sleep(1000);
+                wristIndex = i;
             }
         }
 
@@ -204,19 +228,6 @@ public class NewTeleOp extends LinearOpMode {
 
             // Send calculated power to wheels
             if (gamepad1.right_bumper || gamepad1.left_bumper) {
-                //   if (gamepad1.right_stick_x == 0 && gamepad1.right_stick_y == 0) {
-                //       if (gamepad1.right_bumper) {
-                //           FLMotor.setPower(1);
-                //           FRMotor.setPower(-1);
-                //           BLMotor.setPower(-1);
-                //           BRMotor.setPower(1);
-                //       } else {
-                //           FLMotor.setPower(-1);
-                //           FRMotor.setPower(1);
-                //           BLMotor.setPower(1);
-                //           BRMotor.setPower(-1);
-                //       }
-                //   } else {
                 if (-gamepad1.right_stick_y > 0) {
                     if (gamepad1.right_bumper) {
                         FLMotor.setPower(1);
@@ -257,26 +268,50 @@ public class NewTeleOp extends LinearOpMode {
             boolean trianglePressed = gamepad2.triangle;
             boolean squarePressed = gamepad2.square;
             boolean crossPressed = gamepad2.cross;
+            boolean dpadUpPressed = gamepad2.dpad_up;
+            boolean dpadDownPressed = gamepad2.dpad_down;
+            boolean dpadLeftPressed = gamepad2.dpad_left;
+            boolean dpadRightPressed = gamepad2.dpad_right;
 
-            if (index == 0) {
-                if (crossPressed && !oldCrossPressed && !isArmMoving) {
-                    //Code For Intaking Position
-                    index = 1;
-                } else if (circlePressed && !oldCirclePressed && !isArmMoving) {
-                    //Code For Scoring High Position
-                    index = 2;
-                } else if (squarePressed && !oldSquarePressed && !isArmMoving) {
-                    //Code For Scoring Low Position
-                    index = 3;
-                }
-            } else if (index == 1 || index == 2 || index == 3) {
-                IntakeServo.setPower(gamepad2.dpad_up ? -1.0 : gamepad2.dpad_down ? 1.0 : 0);
-                if (trianglePressed && !oldTrianglePressed && !isArmMoving) {
-                    //Code for back to neutral postion
-                    index = 0;
+            if (trianglePressed && !oldTrianglePressed && !isArmMoving) { // neutral position, index = 0
+                    new setIsArmMoving(true).run();
+                    timer.schedule(new MoveWristServoPosition(0), 0 * DELAY_BETWEEN_MOVES);
+                    timer.schedule(new LowerArmToCertainServoPosition(0), 2 * DELAY_BETWEEN_MOVES);
+
+                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
+                    timer.schedule(new setIsWristMoving(false), 4 * DELAY_BETWEEN_MOVES);
+            } else {
+                if (crossPressed && !oldCrossPressed && !isArmMoving) { // sets to intake pos, index = 1
+                    new setIsArmMoving(true).run();
+                    timer.schedule(new LowerArmToCertainServoPosition(1), 0 * DELAY_BETWEEN_MOVES);
+                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
+                } else if (circlePressed && !oldCirclePressed && !isArmMoving) { //sets to low pos, index = 2
+                    new setIsArmMoving(true).run();
+                    timer.schedule(new LowerArmToCertainServoPosition(2), 0 * DELAY_BETWEEN_MOVES);
+                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
+
+                } else if (squarePressed && !oldSquarePressed && !isArmMoving) { //sets to high pos, index = 3
+                    new setIsArmMoving(true).run();
+                    timer.schedule(new LowerArmToCertainServoPosition(3), 0 * DELAY_BETWEEN_MOVES);
+                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
                 }
             }
-
+            if (index != 0) {
+                if(dpadRightPressed  && wristIndex != 1 /*&& !oldRightDpadPressed && !isWristMoving*/) {
+                    new setIsWristMoving(true).run();
+//                    WristServo.setPosition(WServoPositions[wristIndex+1]);
+//                    wristIndex++;
+//                    if(wristIndex>=4) { wristIndex --; }
+                    WristServo.setPosition(WServoPositions[1]);
+                    wristIndex = 1;
+                    timer.schedule(new setIsWristMoving(false), 4 * DELAY_BETWEEN_MOVES);
+                } else if(dpadLeftPressed  && wristIndex != 0 /*&& !oldLeftDpadPressed && !isWristMoving*/) {
+                    WristServo.setPosition(WServoPositions[0]);
+                    wristIndex = 0;
+                    timer.schedule(new setIsWristMoving(false), 4 * DELAY_BETWEEN_MOVES);
+                }
+                IntakeServo.setPower(dpadUpPressed ? IServoPositions[0] : dpadUpPressed ? IServoPositions[2] : 0);
+            }
 
 
 
@@ -295,8 +330,10 @@ public class NewTeleOp extends LinearOpMode {
             oldCirclePressed = circlePressed;
             oldSquarePressed = squarePressed;
             oldTrianglePressed = trianglePressed;
-            oldLeftDpadPressed = gamepad2.dpad_left;
-            oldRightDpadPressed = gamepad2.dpad_right;
+            oldUpDpadPressed = dpadUpPressed;
+            oldDownDpadPressed = dpadDownPressed;
+            oldLeftDpadPressed = dpadLeftPressed;
+            oldRightDpadPressed = dpadRightPressed;
 
 
         }

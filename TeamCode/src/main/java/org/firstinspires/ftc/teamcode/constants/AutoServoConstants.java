@@ -6,4 +6,3 @@ public class AutoServoConstants {
     public static final double[] WServoPositions = {0.84, 0.85, 0.76, 0.35, 0.35, 0.76, 0.85, 0.84, /*0.00*/};
     public static final double[] IServoPositions = {-1.0, 0.0, 0.5};
 }
-}
