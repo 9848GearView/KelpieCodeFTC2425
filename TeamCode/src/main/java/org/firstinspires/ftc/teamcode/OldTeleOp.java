@@ -208,9 +208,6 @@ public class OldTeleOp extends LinearOpMode {
 
 
         // Wait for the game to start (driver presses START)
-        LeftElbowServo.setPosition(LEServoPositions[3]);
-        RightElbowServo.setPosition(REServoPositions[3]);
-        WristServo.setPosition(WristServoPositions[0]);
         waitForStart();
         runtime.reset();
 

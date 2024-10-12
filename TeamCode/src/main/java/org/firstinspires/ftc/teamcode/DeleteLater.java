@@ -29,39 +29,43 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.constants.AutoServoConstants;
 import org.firstinspires.ftc.teamcode.constants.TeleOpServoConstants;
 
-import java.lang.Math;
-
-import java.util.TimerTask;
 import java.util.Timer;
-
+import java.util.TimerTask;
 
 /*
- * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
- * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When a selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
+ * This OpMode illustrates the concept of driving a path based on time.
+ * The code is structured as a LinearOpMode
  *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all linear OpModes contain.
+ * The code assumes that you do NOT have encoders on the wheels,
+ *   otherwise you would use: RobotAutoDriveByEncoder;
+ *
+ *   The desired path in this example is:
+ *   - Drive forward for 3 seconds
+ *   - Spin right for 1.3 seconds
+ *   - Drive Backward for 1 Second
+ *
+ *  The code is written in a simple form with no optimizations.
+ *  However, there are several ways that this type of sequence could be streamlined,
  *
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Siren TeleOp")
+@Autonomous(name="I ain't baking no cake", group="Robot")
+public class DeleteLater extends LinearOpMode {
 
-public class SirenTeleOp extends LinearOpMode {
-
-    // Declare OpMode members
+    /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor FLMotor = null;
     private DcMotor FRMotor = null;
@@ -90,14 +94,13 @@ public class SirenTeleOp extends LinearOpMode {
     private boolean isArmMoving = false;
     private boolean isWristMoving = false;
 
-    private double[] LEServoPositions = TeleOpServoConstants.LEServoPositions;
-    private double[] REServoPositions = TeleOpServoConstants.REServoPositions;
-    private double[] WServoPositions = TeleOpServoConstants.WServoPositions;
-    private double[] IServoPositions = TeleOpServoConstants.IServoPositions;
+    private double[] LEServoPositions = AutoServoConstants.LEServoPositions;
+    private double[] REServoPositions = AutoServoConstants.REServoPositions;
+    private double[] WServoPositions = AutoServoConstants.WServoPositions;
+    private double[] IServoPositions = AutoServoConstants.IServoPositions;
 
 
     private final int DELAY_BETWEEN_MOVES = 100;
-
 
     @Override
     public void runOpMode() {
@@ -119,16 +122,18 @@ public class SirenTeleOp extends LinearOpMode {
 
         class LowerArmToCertainServoPosition extends TimerTask {
             int i;
+
             public LowerArmToCertainServoPosition(int i) {
                 this.i = i;
             }
+
             public void run() {
                 LeftElbowServo.setPosition(LEServoPositions[i]);
                 RightElbowServo.setPosition(REServoPositions[i]);
 
                 telemetry.addData("index", i);
                 telemetry.update();
-//                sleep(1000);
+                //                 sleep(1000);
                 index = i;
             }
         }
@@ -144,11 +149,10 @@ public class SirenTeleOp extends LinearOpMode {
 
                 telemetry.addData("Wrist Index", i);
                 telemetry.update();
-                //   sleep(1000);
+                //                 sleep(1000);
                 wristIndex = i;
             }
         }
-
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -174,6 +178,7 @@ public class SirenTeleOp extends LinearOpMode {
         BRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LeftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -205,141 +210,44 @@ public class SirenTeleOp extends LinearOpMode {
 
 
         // Wait for the game to start (driver presses START)
-        waitForStart();
-        runtime.reset();
         LeftElbowServo.setPosition(LEServoPositions[4]);
         RightElbowServo.setPosition(REServoPositions[4]);
         WristServo.setPosition(WServoPositions[1]);
-        // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
 
-            // Setup a variable for each drive wheel to save power level for telemetry
+        telemetry.addData("Status", "Ready to run");    //
+        telemetry.update();
 
-            // Choose to drive using either Tank Mode, or POV Mode
-            // Comment out the method that's not used.  The default below is POV.
+        // Wait for the game to start (driver presses START)
+        waitForStart();
 
-            // POV Mode uses left stick to go forward, and right stick to turn.
-            // - This uses basic math to combine motions and is easier to drive straight.
-            double r = Math.hypot(gamepad1.left_stick_x, -gamepad1.left_stick_y);
-            double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-            double rightX = gamepad1.right_stick_x;
-            final double FLPower = r * Math.cos(robotAngle) + rightX;
-            final double FRPower = r * Math.sin(robotAngle) - rightX;
-            final double BLPower = r * Math.sin(robotAngle) + rightX;
-            final double BRPower = r * Math.cos(robotAngle) - rightX;
+        // Step through each leg of the path, ensuring that the OpMode has not been stopped along the way.
 
-            // Send calculated power to wheels
-            if (gamepad1.right_bumper || gamepad1.left_bumper) {
-                if (-gamepad1.right_stick_y > 0) {
-                    if (gamepad1.right_bumper) {
-                        FLMotor.setPower(1);
-                        FRMotor.setPower(-1 + Math.abs(gamepad1.right_stick_y));
-                        BLMotor.setPower(-1 + Math.abs(gamepad1.right_stick_y));
-                        BRMotor.setPower(1);
-                    } else {
-                        FLMotor.setPower(-1 + Math.abs(gamepad1.right_stick_y));
-                        FRMotor.setPower(1);
-                        BLMotor.setPower(1);
-                        BRMotor.setPower(-1 + Math.abs(gamepad1.right_stick_y));
-                    }
-                } else {
-                    if (gamepad1.right_bumper) {
-                        FLMotor.setPower(1 - Math.abs(gamepad1.right_stick_y));
-                        FRMotor.setPower(-1);
-                        BLMotor.setPower(-1);
-                        BRMotor.setPower(1 - Math.abs(gamepad1.right_stick_y));
-                    } else {
-                        FLMotor.setPower(-1);
-                        FRMotor.setPower(1 - Math.abs(gamepad1.right_stick_y));
-                        BLMotor.setPower(1 - Math.abs(gamepad1.right_stick_y));
-                        BRMotor.setPower(-1);
-                    }
-                }
-                //   }
-            } else {
-                FLMotor.setPower(FLPower);
-                FRMotor.setPower(FRPower);
-                BLMotor.setPower(BLPower);
-                BRMotor.setPower(BRPower);
-            }
-
-            LeftSlide.setPower(-gamepad2.left_stick_y);
-            RightSlide.setPower(-gamepad2.left_stick_y);
-
-            boolean circlePressed = gamepad2.circle;
-            boolean trianglePressed = gamepad2.triangle;
-            boolean squarePressed = gamepad2.square;
-            boolean crossPressed = gamepad2.cross;
-            boolean dpadUpPressed = gamepad2.dpad_up;
-            boolean dpadDownPressed = gamepad2.dpad_down;
-            boolean dpadLeftPressed = gamepad2.dpad_left;
-            boolean dpadRightPressed = gamepad2.dpad_right;
-
-            if (trianglePressed && !oldTrianglePressed && !isArmMoving) { // neutral position, index = 0
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new MoveWristServoPosition(0), 0 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new LowerArmToCertainServoPosition(0), 2 * DELAY_BETWEEN_MOVES);
-
-                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsWristMoving(false), 4 * DELAY_BETWEEN_MOVES);
-            } else {
-                if (crossPressed && !oldCrossPressed && !isArmMoving) { // sets to intake pos, index = 1
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new LowerArmToCertainServoPosition(1), 0 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
-
-                } else if (circlePressed && !oldCirclePressed && !isArmMoving) { //sets to low pos, index = 2
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new LowerArmToCertainServoPosition(2), 0 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
-
-                } else if (squarePressed && !oldSquarePressed && !isArmMoving) { //sets to high pos, index = 3
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new LowerArmToCertainServoPosition(3), 0 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
-                }
-            }
-            boolean intakeMoving = dpadUpPressed || dpadDownPressed;
-            if (index != 0) {
-                if(dpadRightPressed  && wristIndex != 1 /*&& !oldRightDpadPressed*/ && !intakeMoving ) {
-                    new setIsWristMoving(true).run();
-//                    WristServo.setPosition(WServoPositions[wristIndex+1]);
-//                    wristIndex++;
-//                    if(wristIndex>=4) { wristIndex --; }
-                    WristServo.setPosition(WServoPositions[1]);
-                    wristIndex = 1;
-                    timer.schedule(new setIsWristMoving(false), 7 * DELAY_BETWEEN_MOVES);
-                } else if(dpadLeftPressed  && wristIndex != 0 /*&& !oldLeftDpadPressed*/ && !intakeMoving ) {
-                    WristServo.setPosition(WServoPositions[0]);
-                    wristIndex = 0;
-                    timer.schedule(new setIsWristMoving(false), 7 * DELAY_BETWEEN_MOVES);
-                }
-                IntakeServo.setPower(dpadUpPressed && !isWristMoving ? IServoPositions[0]: dpadDownPressed && !isWristMoving ? IServoPositions[2] : 0);
-            }
-
-
-
-
-
-
-
-            // Show the elapsed game time and wheel power.
-            //   telemetry.addData("Status", "Run Time: " + runtime.toString());
-            //   telemetry.addData("INDEX", index % LEServoPositions.length);
-//            telemetry.addData("", LEServoPositions[index]);
-//            telemetry.addData("", REServoPositions[index]);
-//            telemetry.addData("", RWServoPositions[index]);
-            telemetry.update();
-            oldCrossPressed = crossPressed;
-            oldCirclePressed = circlePressed;
-            oldSquarePressed = squarePressed;
-            oldTrianglePressed = trianglePressed;
-            oldUpDpadPressed = dpadUpPressed;
-            oldDownDpadPressed = dpadDownPressed;
-            oldLeftDpadPressed = dpadLeftPressed;
-            oldRightDpadPressed = dpadRightPressed;
-
-
+        // Step 1:  Drive forward for 3 seconds
+        runtime.reset();
+        while (opModeIsActive() && (runtime.milliseconds() < 3000)) {
+            FLMotor.setPower(0.5);
+            FRMotor.setPower(-0.5);
+            BLMotor.setPower(-0.5);
+            BRMotor.setPower(0.5);
         }
+
+        // Step 2:  Spin right for 1.3 seconds
+        runtime.reset();
+        while (opModeIsActive() && (runtime.milliseconds() < 250)) {
+            FLMotor.setPower(-0.5);
+            FRMotor.setPower(0.5);
+            BLMotor.setPower(0.5);
+            BRMotor.setPower(-0.5);
+        }
+
+        // Step 3:  Drive Backward for 1 Second
+
+        // Step 4:  Stop
+        FLMotor.setPower(0);
+        FRMotor.setPower(0);
+        BLMotor.setPower(0);
+        BRMotor.setPower(0);
+
+        sleep(1000);
     }
 }
