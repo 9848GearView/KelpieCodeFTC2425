@@ -224,7 +224,7 @@ public class DeleteLater extends LinearOpMode {
 
         // Step 1:  Drive forward for 3 seconds
         runtime.reset();
-        while (opModeIsActive() && (runtime.milliseconds() < 3000)) {
+        while (opModeIsActive() && (runtime.milliseconds() < 2000)) {
             FLMotor.setPower(0.5);
             FRMotor.setPower(-0.5);
             BLMotor.setPower(-0.5);
@@ -239,6 +239,9 @@ public class DeleteLater extends LinearOpMode {
             BLMotor.setPower(0.5);
             BRMotor.setPower(-0.5);
         }
+        LeftElbowServo.setPosition(LEServoPositions[0]);
+        RightElbowServo.setPosition(REServoPositions[0]);
+        WristServo.setPosition(WServoPositions[0]);
 
         // Step 3:  Drive Backward for 1 Second
 

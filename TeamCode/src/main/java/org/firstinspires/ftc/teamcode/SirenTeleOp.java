@@ -203,13 +203,15 @@ public class SirenTeleOp extends LinearOpMode {
         LeftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
+        LeftElbowServo.setPosition(LEServoPositions[0]);
+        RightElbowServo.setPosition(REServoPositions[0]);
+        WristServo.setPosition(WServoPositions[0]);
         // Wait for the game to start (driver presses START)
         waitForStart();
         runtime.reset();
-        LeftElbowServo.setPosition(LEServoPositions[4]);
-        RightElbowServo.setPosition(REServoPositions[4]);
-        WristServo.setPosition(WServoPositions[1]);
+        LeftElbowServo.setPosition(LEServoPositions[1]);
+        RightElbowServo.setPosition(REServoPositions[1]);
+        WristServo.setPosition(WServoPositions[0]);
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
@@ -288,12 +290,12 @@ public class SirenTeleOp extends LinearOpMode {
                     timer.schedule(new LowerArmToCertainServoPosition(1), 0 * DELAY_BETWEEN_MOVES);
                     timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
 
-                } else if (circlePressed && !oldCirclePressed && !isArmMoving) { //sets to low pos, index = 2
+                } else if (squarePressed && !oldSquarePressed && !isArmMoving) { //sets to low pos, index = 2
                     new setIsArmMoving(true).run();
                     timer.schedule(new LowerArmToCertainServoPosition(2), 0 * DELAY_BETWEEN_MOVES);
                     timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
 
-                } else if (squarePressed && !oldSquarePressed && !isArmMoving) { //sets to high pos, index = 3
+                } else if (circlePressed && !oldCirclePressed && !isArmMoving) { //sets to high pos, index = 3
                     new setIsArmMoving(true).run();
                     timer.schedule(new LowerArmToCertainServoPosition(3), 0 * DELAY_BETWEEN_MOVES);
                     timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
