@@ -175,6 +175,12 @@ public class SirenTeleOp extends LinearOpMode {
         LeftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        LeftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LeftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        RightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -341,6 +347,8 @@ public class SirenTeleOp extends LinearOpMode {
 //            telemetry.addData("", LEServoPositions[index]);
 //            telemetry.addData("", REServoPositions[index]);
 //            telemetry.addData("", RWServoPositions[index]);
+            telemetry.addData("Left", LeftSlide.getCurrentPosition());
+            telemetry.addData("Right", LeftSlide.getCurrentPosition());
             telemetry.update();
             oldCrossPressed = crossPressed;
             oldCirclePressed = circlePressed;

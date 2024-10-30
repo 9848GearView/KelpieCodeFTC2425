@@ -100,7 +100,7 @@ public class SirenAutoLeft extends LinearOpMode
     private int[] LSMotorPositions = AutoServoConstants.LSMotorPositions;
     private int[] RSMotorPositions = AutoServoConstants.RSMotorPositions;
 
-    private final int DELAY_BETWEEN_MOVES = 300;
+    private final int DELAY_BETWEEN_MOVES = 100;
 
     class LowerArmToCertainServoPosition extends TimerTask {
         int i;
@@ -142,9 +142,8 @@ public class SirenAutoLeft extends LinearOpMode
     }
     public void run() {
         IntakeServo.setPower(IServoPositions[i]);
-
+        }
     }
-}
 
     class SlidePosition extends TimerTask {
         int i;
@@ -229,14 +228,15 @@ public class SirenAutoLeft extends LinearOpMode
         BRMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         LeftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LeftSlide.setTargetPosition(LSMotorPositions[0]);
         LeftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         RightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RightSlide.setTargetPosition(RSMotorPositions[0]);
         RightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         LeftElbowServo.setPosition(LEServoPositions[4]);
         RightElbowServo.setPosition(REServoPositions[4]);
-        WristServo.setPosition(WServoPositions[0]);
+        WristServo.setPosition(WServoPositions[1]);
         // Wait for the game to start (driver presses PLAY)
 
 
@@ -246,7 +246,7 @@ public class SirenAutoLeft extends LinearOpMode
         // landscape orientation, though.
 //        webcam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(-36, -90, Math.PI / 2));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(-36, -67, Math.PI / 2));
 //        timer.schedule(new PutGrabberToCertainPosition(0), 3000);
 
 
@@ -267,7 +267,7 @@ public class SirenAutoLeft extends LinearOpMode
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             timer.schedule(new MoveWristServoPosition(0), 0);
-            timer.schedule(new LowerArmToCertainServoPosition(2), 0 * DELAY_BETWEEN_MOVES);
+            timer.schedule(new LowerArmToCertainServoPosition(3), 0 * DELAY_BETWEEN_MOVES);
             return false;
         }
     }
@@ -275,7 +275,7 @@ public class SirenAutoLeft extends LinearOpMode
     public class IntakeSample implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            timer.schedule(new LowerArmToCertainServoPosition(1),  0 * DELAY_BETWEEN_MOVES);
+            timer.schedule(new LowerArmToCertainServoPosition(1),  2 * DELAY_BETWEEN_MOVES);
             timer.schedule(new MoveWristServoPosition(0), 0 * DELAY_BETWEEN_MOVES);
 
 
@@ -286,9 +286,16 @@ public class SirenAutoLeft extends LinearOpMode
     public class Intake implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            timer.schedule(new IntakeState(0), 0*DELAY_BETWEEN_MOVES);
-            timer.schedule(new IntakeState(1), 8*DELAY_BETWEEN_MOVES);
-
+            IntakeServo.setPower(-1.0);
+            timer.schedule(new IntakeState(1), 10 * DELAY_BETWEEN_MOVES);
+            return false;
+        }
+    }
+    public class Outtake implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            IntakeServo.setPower(0.5);
+            timer.schedule(new IntakeState(1), 10 * DELAY_BETWEEN_MOVES);
             return false;
         }
     }
@@ -307,17 +314,21 @@ public class SirenAutoLeft extends LinearOpMode
     public class Move implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            timer.schedule(new LowerArmToCertainServoPosition(4),  0 * DELAY_BETWEEN_MOVES);
+            timer.schedule(new LowerArmToCertainServoPosition(0),  0 * DELAY_BETWEEN_MOVES);
             timer.schedule(new MoveWristServoPosition(0), 0 * DELAY_BETWEEN_MOVES);
 
 
             return false;
         }
     }
-    public class RaiseArmtoHighBucket implements Action {
+    public class moveArm implements Action {
+        int pos;
+        public moveArm(int pos){
+            this.pos = pos;
+        }
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            timer.schedule(new SlidePosition(0, 1),  0 * DELAY_BETWEEN_MOVES);
+            timer.schedule(new SlidePosition(pos, 1),  0 * DELAY_BETWEEN_MOVES);
 
             return false;
         }
@@ -332,13 +343,9 @@ public class SirenAutoLeft extends LinearOpMode
             multiplier = -1;
         }
 
-        TrajectoryActionBuilder actionBuilder = drive.actionBuilder(drive.pose)
-                .strafeToConstantHeading(new Vector2d(-40, -33))
-                .turn(13*(Math.PI/16))
-                .afterTime(0, new IntakeSample())
-                .waitSeconds(1)
-                .strafeToConstantHeading(new Vector2d(-42, -35))
-                .afterTime(0.5, new Intake())
+        TrajectoryActionBuilder actionBuilder = drive.actionBuilder(drive.pose); //actually a genius
+
+        TrajectoryActionBuilder actionBuilder2 = drive.actionBuilder(drive.pose)
                 .afterTime(0, new Neutral())
                 .turn(3*(Math.PI/2)) //past this point is untested,
                 // also the intake don't work rn, i just need to fine tune it, but this is the path besides placing preset one
@@ -372,7 +379,18 @@ public class SirenAutoLeft extends LinearOpMode
                 .lineToX(60);*/
 //                Actions.runBlocking(new ParallelAction(drive.actionBuilder(drive.pose).strafeToConstantHeading(new Vector2d(-40, -33)).build(), drive.actionBuilder(drive.pose).turn(13*(Math.PI/16)).build())); god dayum this is ugly
 //                Actions.runBlocking(new ParallelAction(actionBuilder.build(), actionBuilder.build())); //figured it out :)
-        Actions.runBlocking(actionBuilder.build());
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-30, -36), 13*(Math.PI/16)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+//        Actions.runBlocking(drive.actionBuilder(drive.pose).waitSeconds(0).build());
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-42, -35.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-50, -52), 22*(Math.PI/16)).build(), actionBuilder.afterTime(0, new moveArm(1)).build(), actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+
+        Actions.runBlocking(actionBuilder.strafeToConstantHeading(new Vector2d(-58, -58.5)).build());
+        Actions.runBlocking(actionBuilder.afterTime(0, new Outtake()).build());
+        Actions.runBlocking(actionBuilder.waitSeconds(1).build());
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-46, -36), 13*(Math.PI/16)).build(), actionBuilder.afterTime(2 * DELAY_BETWEEN_MOVES, new moveArm(0)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
     }
 
     private DriveDirection getCorrectDirection(DriveDirection direction, boolean needInvert) {
