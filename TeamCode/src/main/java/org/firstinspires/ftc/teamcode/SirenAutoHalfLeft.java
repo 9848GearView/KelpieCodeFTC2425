@@ -49,9 +49,9 @@ import java.util.TimerTask;
  * 100% accurate) method of detecting the TeamElement when lined up with
  * the sample regions over the first 3 stones.
  */
-@Autonomous(name = "SirenAutoLeft")
+@Autonomous(name = "WHO LIVES IN A PINEAPPLE UNDER THE SEA")
 //@Disabled
-public class SirenAutoLeft extends LinearOpMode
+public class SirenAutoHalfLeft extends LinearOpMode
 {
     enum DriveDirection {
         FORWARD,
@@ -129,13 +129,13 @@ public class SirenAutoLeft extends LinearOpMode
     }
 
     class IntakeState extends TimerTask {
-    int i;
+        int i;
 
         public IntakeState(int i) {
-        this.i = i;
-    }
-    public void run() {
-        IntakeServo.setPower(IServoPositions[i]);
+            this.i = i;
+        }
+        public void run() {
+            IntakeServo.setPower(IServoPositions[i]);
         }
     }
 
@@ -355,12 +355,6 @@ public class SirenAutoLeft extends LinearOpMode
                 .lineToX(60);*/
 //                Actions.runBlocking(new ParallelAction(drive.actionBuilder(drive.pose).strafeToConstantHeading(new Vector2d(-40, -33)).build(), drive.actionBuilder(drive.pose).turn(13*(Math.PI/16)).build())); god dayum this is ugly
 //                Actions.runBlocking(new ParallelAction(actionBuilder.build(), actionBuilder.build())); //figured it out :)
-
-        //pre-place
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build(), actionBuilder.afterTime(0, new Move(5, 2, 8, 12)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(4, -30),  9 * (Math.PI /16)).build(), actionBuilder.afterTime(0, new moveArm(2, 0)).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build() ,actionBuilder.afterTime(0.7, actionBuilder.strafeToConstantHeading(new Vector2d(-18, -55)).build()).build(), actionBuilder.afterTime(0.6, new Neutral()).build(), actionBuilder.afterTime(1, new Outtake()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
 
 
 

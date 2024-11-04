@@ -209,14 +209,14 @@ public class SirenTeleOp extends LinearOpMode {
         LeftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        LeftElbowServo.setPosition(LEServoPositions[4]);
-        RightElbowServo.setPosition(REServoPositions[4]);
+        LeftElbowServo.setPosition(LEServoPositions[1]);
+        RightElbowServo.setPosition(REServoPositions[1]);
         WristServo.setPosition(WServoPositions[0]);
         // Wait for the game to start (driver presses START)
         waitForStart();
         runtime.reset();
-        LeftElbowServo.setPosition(LEServoPositions[1]);
-        RightElbowServo.setPosition(REServoPositions[1]);
+//        LeftElbowServo.setPosition(LEServoPositions[1]);
+//        RightElbowServo.setPosition(REServoPositions[1]);
         WristServo.setPosition(WServoPositions[0]);
         index = 1;
         // run until the end of the match (driver presses STOP)
@@ -319,14 +319,15 @@ public class SirenTeleOp extends LinearOpMode {
                     wristIndex = 1;
                     timer.schedule(new setIsWristMoving(false), 7 * DELAY_BETWEEN_MOVES);
                 } else if(dpadLeftPressed  && wristIndex != 0 /*&& !oldLeftDpadPressed*/ && !intakeMoving ) {
+                    new setIsWristMoving(true).run();
                     WristServo.setPosition(WServoPositions[0]);
                     wristIndex = 0;
                     timer.schedule(new setIsWristMoving(false), 7 * DELAY_BETWEEN_MOVES);
                 }
-                if (dpadUpPressed && !isWristMoving) {
+                if (gamepad2.right_trigger > 0.3 || dpadUpPressed && !isWristMoving) {
                     IntakeServo.setPower(IServoPositions[0]);
                     telemetry.addData("Intaking", "");
-                } else if (dpadDownPressed && !isWristMoving) {
+                } else if (gamepad2.left_trigger > 0.3 || dpadDownPressed && !isWristMoving) {
                     IntakeServo.setPower(IServoPositions[2]);
                     telemetry.addData("Outtaking", "");
                 } else {
