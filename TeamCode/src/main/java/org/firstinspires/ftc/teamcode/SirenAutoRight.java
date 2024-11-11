@@ -357,9 +357,9 @@ public class SirenAutoRight extends LinearOpMode
 //                Actions.runBlocking(new ParallelAction(actionBuilder.build(), actionBuilder.build())); //figured it out :)
 
         //pre-place
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build(), actionBuilder.afterTime(0, new Move(5, 2, 8, 12)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(4, -30),  9 * (Math.PI /16)).build(), actionBuilder.afterTime(0, new moveArm(2, 0)).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build(), actionBuilder.afterTime(0, new Move(5, 2, 8, 12)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-4, -30),  9 * (Math.PI /16)).build(), actionBuilder.afterTime(0, new moveArm(2, 0)).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build() ,actionBuilder.afterTime(0.7, actionBuilder.strafeToConstantHeading(new Vector2d(-18, -55)).build()).build(), actionBuilder.afterTime(0.6, new Neutral()).build(), actionBuilder.afterTime(1, new Outtake()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build() ,actionBuilder.afterTime(0.7, actionBuilder.strafeToConstantHeading(new Vector2d(18, -55)).build()).build(), actionBuilder.afterTime(0.6, new Neutral()).build(), actionBuilder.afterTime(1, new Outtake()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
         Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(64, -54), Math.PI/2).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
