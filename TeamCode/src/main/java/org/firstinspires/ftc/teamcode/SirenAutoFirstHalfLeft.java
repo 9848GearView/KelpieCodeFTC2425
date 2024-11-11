@@ -51,7 +51,7 @@ import java.util.TimerTask;
  */
 @Autonomous(name = "WHO LIVES IN A PINEAPPLE UNDER THE SEA")
 //@Disabled
-public class SirenAutoHalfLeft extends LinearOpMode
+public class SirenAutoFirstHalfLeft extends LinearOpMode
 {
     enum DriveDirection {
         FORWARD,
@@ -330,6 +330,18 @@ public class SirenAutoHalfLeft extends LinearOpMode
             return false;
         }
     }
+    public class driveStraight implements Action {
+        TrajectoryActionBuilder a;
+        double x;
+        double y;
+        public driveStraight(TrajectoryActionBuilder actionBuilder, double x, double y){ a = actionBuilder; this.x = x; this.y = y; }
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            a.strafeToConstantHeading(new Vector2d(x, y));
+            return false;
+        }
+    }
+
 
 
     private void doActions(MecanumDrive drive, StartingPositionEnum position) {
@@ -358,49 +370,12 @@ public class SirenAutoHalfLeft extends LinearOpMode
 
 
 
-        //first sample
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-39, -40), 13*(Math.PI/16)).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build(), actionBuilder.afterTime(0, new Move(5, 2, 8, 12)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(4, -30.5),  9 * (Math.PI /16)).build(), actionBuilder.afterTime(0, new moveArm(2, 0)).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
-//        Actions.runBlocking(drive.actionBuilder(drive.pose).waitSeconds(0).build());
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-45, -35.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        actionBuilder.setTangent(0);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build() ,actionBuilder.afterTime(0.7, actionBuilder.splineToLinearHeading(new Pose2d(-36, -55, -Math.PI), Math.PI/2).build()).build(), actionBuilder.afterTime(0.6, new Neutral()).build(), actionBuilder.afterTime(1, new Outtake()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(4, -32)).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-50, -52), 21*(Math.PI/16)).build(), actionBuilder.afterTime(0, new moveArm(1, 0)).build(), actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-
-        Actions.runBlocking(actionBuilder.strafeToConstantHeading(new Vector2d(-59, -64.5)).build());
-        Actions.runBlocking(actionBuilder.afterTime(0, new Outtake()).build());
-        Actions.runBlocking(actionBuilder.waitSeconds(0.7).build());
-        actionBuilder = drive.actionBuilder(drive.pose);
-
-        //second sample
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-41, -35), 13*(Math.PI/16)).build(), actionBuilder.afterTime(1, new moveArm(0, 1)).build(), actionBuilder.afterTime(1, new IntakeSample()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-48, -32.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-50, -52), 22*(Math.PI/16)).build(), actionBuilder.afterTime(0, new moveArm(1, 0)).build(), actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-
-        Actions.runBlocking(actionBuilder.strafeToConstantHeading(new Vector2d(-59.5, -64.5)).build());
-        Actions.runBlocking(actionBuilder.afterTime(0, new Outtake()).build());
-        Actions.runBlocking(actionBuilder.waitSeconds(0.7).build());
-        actionBuilder = drive.actionBuilder(drive.pose);
-
-        //third sample
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-53, -35), 13*(Math.PI/16)).build(), actionBuilder.afterTime(1, new moveArm(0, 1)).build(), actionBuilder.afterTime(1, new IntakeSample()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-57, -32.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-50, -52), 23*(Math.PI/16)).build(), actionBuilder.afterTime(0, new moveArm(1, 0)).build(), actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-
-        Actions.runBlocking(actionBuilder.strafeToConstantHeading(new Vector2d(-55, -69.5)).build());
-        Actions.runBlocking(actionBuilder.afterTime(0, new Outtake()).build());
-        Actions.runBlocking(actionBuilder.waitSeconds(0.7).build());
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Move(0, 0, 0, 0)).build(), actionBuilder.afterTime(0, new moveArm(0, 0)).build(), actionBuilder.afterTime(0.5, new IntakeSample()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(-50, -52)).build()));
+        Action a = actionBuilder.strafeToConstantHeading(new Vector2d(-18, -55)).build();
     }
 
     private DriveDirection getCorrectDirection(DriveDirection direction, boolean needInvert) {
