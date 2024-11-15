@@ -31,6 +31,7 @@ import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -49,7 +50,7 @@ import java.util.TimerTask;
  * 100% accurate) method of detecting the TeamElement when lined up with
  * the sample regions over the first 3 stones.
  */
-@Autonomous(name = "SirenAutoRight")
+@Autonomous(name = "Right")
 //@Disabled
 public class SirenAutoRight extends LinearOpMode
 {
@@ -356,13 +357,13 @@ public class SirenAutoRight extends LinearOpMode
 //                Actions.runBlocking(new ParallelAction(drive.actionBuilder(drive.pose).strafeToConstantHeading(new Vector2d(-40, -33)).build(), drive.actionBuilder(drive.pose).turn(13*(Math.PI/16)).build())); god dayum this is ugly
 //                Actions.runBlocking(new ParallelAction(actionBuilder.build(), actionBuilder.build())); //figured it out :)
 
-        //pre-place
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build(), actionBuilder.afterTime(0, new Move(5, 2, 8, 12)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-4, -30.5),  9 * (Math.PI /16)).build(), actionBuilder.afterTime(0, new moveArm(2, 0)).build()));
+        //pre place
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build(), actionBuilder.afterTime(0, new Move(3, 2, 8, 12)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-6, -30.5),  9 * (Math.PI /16)).build(), actionBuilder.afterTime(0, new moveArm(2, 0)).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
-        actionBuilder.setTangent(0); //tangent means angle tangent to ending position, probably
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build() ,actionBuilder.afterTime(0.7, actionBuilder.splineToConstantHeading(new Vector2d(36, -55), Math.PI/2).build()).build(), actionBuilder.afterTime(0.6, new Neutral()).build(), actionBuilder.afterTime(1, new Outtake()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(-4, -32)).build()));
+        actionBuilder.setTangent(Math.PI); //tangent means angle tangent to ending position, probably, i lied i still don't know
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build() ,actionBuilder.afterTime(2, actionBuilder.splineToConstantHeading(new Vector2d(36, -55), Math.PI/2).build()).build(), actionBuilder.afterTime(3.5, new IntakeSample()).build(), actionBuilder.afterTime(1, new Outtake()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
-        Action a = actionBuilder.strafeToConstantHeading(new Vector2d(55, -55)).build();
+        Actions.runBlocking(actionBuilder.strafeToConstantHeading(new Vector2d(60, -60)).build());
 
     }
 

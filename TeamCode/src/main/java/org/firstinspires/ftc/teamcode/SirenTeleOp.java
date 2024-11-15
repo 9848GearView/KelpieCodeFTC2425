@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -94,6 +95,7 @@ public class SirenTeleOp extends LinearOpMode {
     private double[] REServoPositions = TeleOpServoConstants.REServoPositions;
     private double[] WServoPositions = TeleOpServoConstants.WServoPositions;
     private double[] IServoPositions = TeleOpServoConstants.IServoPositions;
+    private double[] SlowModeSpeed = TeleOpServoConstants.SlowModeSpeed;
 
 
     private final int DELAY_BETWEEN_MOVES = 100;
@@ -238,30 +240,54 @@ public class SirenTeleOp extends LinearOpMode {
             final double BRPower = r * Math.cos(robotAngle) - rightX;
 
             // Send calculated power to wheels
-            if (gamepad1.right_bumper || gamepad1.left_bumper) {
+            double rt = gamepad1.right_trigger;
+            double lt = gamepad1.left_trigger;
+            if(gamepad1.dpad_up || gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_right) {
+                if(gamepad1.dpad_up) { //all positive
+                    FLMotor.setPower(SlowModeSpeed[1]);
+                    FRMotor.setPower(SlowModeSpeed[1]);
+                    BLMotor.setPower(SlowModeSpeed[1]);
+                    BRMotor.setPower(SlowModeSpeed[1]);
+                } else if (gamepad1.dpad_down){ //all negative
+                    FLMotor.setPower(SlowModeSpeed[0]);
+                    FRMotor.setPower(SlowModeSpeed[0]);
+                    BLMotor.setPower(SlowModeSpeed[0]);
+                    BRMotor.setPower(SlowModeSpeed[0]);
+                } else if (gamepad1.dpad_left){
+                    FLMotor.setPower(SlowModeSpeed[0]);
+                    FRMotor.setPower(SlowModeSpeed[1]);
+                    BLMotor.setPower(SlowModeSpeed[0]);
+                    BRMotor.setPower(SlowModeSpeed[1]);
+                } else if (gamepad1.dpad_right){
+                    FLMotor.setPower(SlowModeSpeed[1]);
+                    FRMotor.setPower(SlowModeSpeed[0]);
+                    BLMotor.setPower(SlowModeSpeed[1]);
+                    BRMotor.setPower(SlowModeSpeed[0]);
+                }
+            } else if (rt > 0.2 || lt > 0.2) {
                 if (-gamepad1.right_stick_y > 0) {
-                    if (gamepad1.right_bumper) {
-                        FLMotor.setPower(1);
-                        FRMotor.setPower(-1 + Math.abs(gamepad1.right_stick_y));
-                        BLMotor.setPower(-1 + Math.abs(gamepad1.right_stick_y));
-                        BRMotor.setPower(1);
+                    if (rt > 0.2) {
+                        FLMotor.setPower(rt);
+                        FRMotor.setPower(-rt + Math.abs(gamepad1.right_stick_y));
+                        BLMotor.setPower(-rt + Math.abs(gamepad1.right_stick_y));
+                        BRMotor.setPower(rt);
                     } else {
-                        FLMotor.setPower(-1 + Math.abs(gamepad1.right_stick_y));
-                        FRMotor.setPower(1);
-                        BLMotor.setPower(1);
-                        BRMotor.setPower(-1 + Math.abs(gamepad1.right_stick_y));
+                        FLMotor.setPower(-lt + Math.abs(gamepad1.right_stick_y));
+                        FRMotor.setPower(lt);
+                        BLMotor.setPower(lt);
+                        BRMotor.setPower(-lt + Math.abs(gamepad1.right_stick_y));
                     }
                 } else {
-                    if (gamepad1.right_bumper) {
-                        FLMotor.setPower(1 - Math.abs(gamepad1.right_stick_y));
-                        FRMotor.setPower(-1);
-                        BLMotor.setPower(-1);
-                        BRMotor.setPower(1 - Math.abs(gamepad1.right_stick_y));
+                    if (rt > 0.2) {
+                        FLMotor.setPower(rt - Math.abs(gamepad1.right_stick_y));
+                        FRMotor.setPower(-rt);
+                        BLMotor.setPower(-rt);
+                        BRMotor.setPower(rt - Math.abs(gamepad1.right_stick_y));
                     } else {
-                        FLMotor.setPower(-1);
-                        FRMotor.setPower(1 - Math.abs(gamepad1.right_stick_y));
-                        BLMotor.setPower(1 - Math.abs(gamepad1.right_stick_y));
-                        BRMotor.setPower(-1);
+                        FLMotor.setPower(-lt);
+                        FRMotor.setPower(lt - Math.abs(gamepad1.right_stick_y));
+                        BLMotor.setPower(lt - Math.abs(gamepad1.right_stick_y));
+                        BRMotor.setPower(-lt);
                     }
                 }
                 //   }
@@ -271,10 +297,8 @@ public class SirenTeleOp extends LinearOpMode {
                 BLMotor.setPower(BLPower);
                 BRMotor.setPower(BRPower);
             }
-
             LeftSlide.setPower(-gamepad2.left_stick_y);
             RightSlide.setPower(-gamepad2.left_stick_y);
-
             boolean circlePressed = gamepad2.circle;
             boolean trianglePressed = gamepad2.triangle;
             boolean squarePressed = gamepad2.square;
