@@ -70,8 +70,10 @@ public class SirenTeleOp extends LinearOpMode {
     private DcMotor BRMotor = null;
     private DcMotor LeftSlide = null;
     private DcMotor RightSlide = null;
-    private CRServo IntakeServo = null;
+    private CRServo IntakeLongServo = null;
+    private CRServo IntakeShortServo = null;
     private Servo WristServo = null;
+    private Servo SpecimanClawServo = null;
     private Servo LeftElbowServo = null;
     private Servo RightElbowServo = null;
 
@@ -94,7 +96,9 @@ public class SirenTeleOp extends LinearOpMode {
     private double[] LEServoPositions = TeleOpServoConstants.LEServoPositions;
     private double[] REServoPositions = TeleOpServoConstants.REServoPositions;
     private double[] WServoPositions = TeleOpServoConstants.WServoPositions;
-    private double[] IServoPositions = TeleOpServoConstants.IServoPositions;
+    private double[] IServoShortPositions = TeleOpServoConstants.IServoShortPositions;
+    private double[] IServoLongPositions = TeleOpServoConstants.IServoLongPositions;
+    private double[] SpecimanClawPositions = TeleOpServoConstants.SpecimenClawPositions;
     private double[] SlowModeSpeed = TeleOpServoConstants.SlowModeSpeed;
 
 
@@ -167,7 +171,9 @@ public class SirenTeleOp extends LinearOpMode {
         LeftElbowServo = hardwareMap.get(Servo.class, "LE");
         RightElbowServo = hardwareMap.get(Servo.class, "RE");
         WristServo = hardwareMap.get(Servo.class, "WS");
-        IntakeServo = hardwareMap.get(CRServo.class, "IN");
+        IntakeShortServo = hardwareMap.get(CRServo.class, "IS");
+        IntakeLongServo = hardwareMap.get(CRServo.class, "IL");
+        SpecimanClawServo = hardwareMap.get(Servo.class, "SC");
         Timer timer = new Timer();
 
         FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -195,7 +201,9 @@ public class SirenTeleOp extends LinearOpMode {
         LeftElbowServo.setDirection(Servo.Direction.FORWARD);
         RightElbowServo.setDirection(Servo.Direction.REVERSE);
         WristServo.setDirection(Servo.Direction.FORWARD);
-        IntakeServo.setDirection(CRServo.Direction.FORWARD);
+        IntakeShortServo.setDirection(CRServo.Direction.FORWARD);
+        IntakeLongServo.setDirection(CRServo.Direction.FORWARD);
+        SpecimanClawServo.setDirection(Servo.Direction.FORWARD);
 
         FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -307,20 +315,22 @@ public class SirenTeleOp extends LinearOpMode {
             boolean dpadDownPressed = gamepad2.dpad_down;
             boolean dpadLeftPressed = gamepad2.dpad_left;
             boolean dpadRightPressed = gamepad2.dpad_right;
-
             if (trianglePressed && !oldTrianglePressed && !isArmMoving) { // neutral position, index = 0
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new MoveWristServoPosition(0), 0 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new LowerArmToCertainServoPosition(0), 2 * DELAY_BETWEEN_MOVES);
+                new setIsArmMoving(true).run();
+                timer.schedule(new LowerArmToCertainServoPosition(0), 2 * DELAY_BETWEEN_MOVES);
 
-                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsWristMoving(false), 4 * DELAY_BETWEEN_MOVES);
+                timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
             } else {
                 if (crossPressed && !oldCrossPressed && !isArmMoving) { // sets to intake pos, index = 1
-                    new setIsArmMoving(true).run();
-                    timer.schedule(new LowerArmToCertainServoPosition(1), 0 * DELAY_BETWEEN_MOVES);
-                    timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
-
+                    if (wristIndex == 0) {
+                        new setIsArmMoving(true).run();
+                        timer.schedule(new LowerArmToCertainServoPosition(1), 0 * DELAY_BETWEEN_MOVES);
+                        timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
+                    } else if (wristIndex == 2) {
+                        new setIsArmMoving(true).run();
+                        timer.schedule(new LowerArmToCertainServoPosition(5), 0 * DELAY_BETWEEN_MOVES);
+                        timer.schedule(new setIsArmMoving(false), 4 * DELAY_BETWEEN_MOVES);
+                    }
                 } else if (squarePressed && !oldSquarePressed && !isArmMoving) { //sets to low pos, index = 2
                     new setIsArmMoving(true).run();
                     timer.schedule(new LowerArmToCertainServoPosition(2), 0 * DELAY_BETWEEN_MOVES);
@@ -333,32 +343,52 @@ public class SirenTeleOp extends LinearOpMode {
                 }
             }
             boolean intakeMoving = dpadUpPressed || dpadDownPressed;
-            if (index != 0) {
-                if(dpadRightPressed  && wristIndex != 1 /*&& !oldRightDpadPressed*/ && !intakeMoving ) {
+            if (index == 2) {
+                if (dpadRightPressed && wristIndex == 0 /*&& !oldRightDpadPressed*/ && !intakeMoving) {
                     new setIsWristMoving(true).run();
-//                    WristServo.setPosition(WServoPositions[wristIndex+1]);
-//                    wristIndex++;
-//                    if(wristIndex>=4) { wristIndex --; }
-                    WristServo.setPosition(WServoPositions[1]);
-                    wristIndex = 1;
+                    WristServo.setPosition(WServoPositions[2]);
+                    wristIndex = 2;
                     timer.schedule(new setIsWristMoving(false), 7 * DELAY_BETWEEN_MOVES);
-                } else if(dpadLeftPressed  && wristIndex != 0 /*&& !oldLeftDpadPressed*/ && !intakeMoving ) {
+                } else if (dpadLeftPressed && wristIndex == 2 /*&& !oldLeftDpadPressed*/ && !intakeMoving) {
                     new setIsWristMoving(true).run();
                     WristServo.setPosition(WServoPositions[0]);
                     wristIndex = 0;
                     timer.schedule(new setIsWristMoving(false), 7 * DELAY_BETWEEN_MOVES);
                 }
-                if (gamepad2.right_trigger > 0.3 || dpadUpPressed && !isWristMoving) {
-                    IntakeServo.setPower(IServoPositions[0]);
-                    telemetry.addData("Intaking", "");
-                } else if (gamepad2.left_trigger > 0.3 || dpadDownPressed && !isWristMoving) {
-                    IntakeServo.setPower(IServoPositions[2]);
-                    telemetry.addData("Outtaking", "");
-                } else {
-                    IntakeServo.setPower(IServoPositions[1]);
-                    telemetry.addData("Not Intaking", "");
+            }
+            if (index != 0) {
+                if (wristIndex == 0) {
+                    if (gamepad2.right_trigger > 0.3 || dpadUpPressed && !isWristMoving) {
+                        IntakeShortServo.setPower(IServoShortPositions[0]);
+                        telemetry.addData("Intaking", "");
+                    } else if (gamepad2.left_trigger > 0.3 || dpadDownPressed && !isWristMoving) {
+                        IntakeShortServo.setPower(IServoShortPositions[2]);
+                        telemetry.addData("Outtaking", "");
+                    } else {
+                        IntakeShortServo.setPower(IServoShortPositions[1]);
+                        telemetry.addData("Not Intaking", "");
+                    }
+                } else if (wristIndex == 2) {
+                    if (gamepad2.right_trigger > 0.3 || dpadUpPressed && !isWristMoving) {
+                        IntakeLongServo.setPower(IServoLongPositions[0]);
+                        telemetry.addData("Intaking", "");
+                    } else if (gamepad2.left_trigger > 0.3 || dpadDownPressed && !isWristMoving) {
+                        IntakeLongServo.setPower(IServoLongPositions[2]);
+                        telemetry.addData("Outtaking", "");
+                    } else {
+                        IntakeLongServo.setPower(IServoLongPositions[1]);
+                        telemetry.addData("Not Intaking", "");
+                    }
                 }
             }
+            boolean lBumperPressed = gamepad2.left_bumper;
+            boolean rBumperPressed = gamepad2.right_bumper;
+            if (lBumperPressed && !oldLBumper && index == 0 && !isArmMoving) { //open
+                SpecimanClawServo.setPosition(SpecimanClawPositions[0]);
+            } else if (rBumperPressed && !oldRBumper && index == 0 && !isArmMoving) {//close
+                SpecimanClawServo.setPosition((SpecimanClawPositions[1]));
+            }
+
 
 
 
@@ -383,7 +413,8 @@ public class SirenTeleOp extends LinearOpMode {
             oldDownDpadPressed = dpadDownPressed;
             oldLeftDpadPressed = dpadLeftPressed;
             oldRightDpadPressed = dpadRightPressed;
-
+            oldLBumper = lBumperPressed;
+            oldRBumper = rBumperPressed;
 
         }
     }

@@ -90,7 +90,7 @@ public class SirenAutoFirstHalfLeft extends LinearOpMode
     private int wristIndex;
     private double[] LEServoPositions = AutoServoConstants.LEServoPositions;
     private double[] REServoPositions = AutoServoConstants.REServoPositions;
-    private double[] IServoPositions = AutoServoConstants.IServoPositions;
+    private double[] IServoPositions = AutoServoConstants.IServoShortPositions;
     private double[] WServoPositions = AutoServoConstants.WServoPositions;
     private int[] LSMotorPositions = AutoServoConstants.LSMotorPositions;
     private int[] RSMotorPositions = AutoServoConstants.RSMotorPositions;
