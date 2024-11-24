@@ -27,15 +27,17 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.UserConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.constants.AutoServoConstants;
@@ -54,6 +56,9 @@ import java.util.TimerTask;
 //@Disabled
 public class SirenAutoRight extends LinearOpMode
 {
+    /*public class literallyEverything {
+
+    }*/
     enum DriveDirection {
         FORWARD,
         LEFT,
@@ -79,7 +84,9 @@ public class SirenAutoRight extends LinearOpMode
     private DcMotor BRMotor = null;
     private DcMotor LeftSlide = null;
     private DcMotor RightSlide = null;
-    private CRServo IntakeServo = null;
+    private CRServo IntakeLongServo = null;
+    private CRServo IntakeShortServo = null;
+    private Servo SpecimenClawServo = null;
     private Servo WristServo = null;
     private Servo LeftElbowServo = null;
     private Servo RightElbowServo = null;
@@ -90,7 +97,8 @@ public class SirenAutoRight extends LinearOpMode
     private int wristIndex;
     private double[] LEServoPositions = AutoServoConstants.LEServoPositions;
     private double[] REServoPositions = AutoServoConstants.REServoPositions;
-    private double[] IServoPositions = AutoServoConstants.IServoShortPositions;
+    private double[] IServoShortPositions = AutoServoConstants.IServoShortPositions;
+    private double[] SpecimenClawPositions = AutoServoConstants.SpecimenClawPositions;
     private double[] WServoPositions = AutoServoConstants.WServoPositions;
     private int[] LSMotorPositions = AutoServoConstants.LSMotorPositions;
     private int[] RSMotorPositions = AutoServoConstants.RSMotorPositions;
@@ -136,7 +144,7 @@ public class SirenAutoRight extends LinearOpMode
             this.i = i;
         }
         public void run() {
-            IntakeServo.setPower(IServoPositions[i]);
+            IntakeShortServo.setPower(IServoShortPositions[i]);
         }
     }
 
@@ -165,12 +173,6 @@ public class SirenAutoRight extends LinearOpMode
     @Override
     public void runOpMode()
     {
-        /**
-         * NOTE: Many comments have been omitted from this sample for the
-         * sake of conciseness. If you're just starting out with EasyOpenCv,
-         * you should take a look at {@link InternalCamera1Example} or its
-         * webcam counterpart, {@link WebcamExample} first.
-         */
 
 
         telemetry.addData("Status", "sInitialized");
@@ -189,7 +191,7 @@ public class SirenAutoRight extends LinearOpMode
         LeftElbowServo = hardwareMap.get(Servo.class, "LE");
         RightElbowServo = hardwareMap.get(Servo.class, "RE");
         WristServo = hardwareMap.get(Servo.class, "WS");
-        IntakeServo = hardwareMap.get(CRServo.class, "IN");
+        IntakeShortServo = hardwareMap.get(CRServo.class, "IS");
 
         FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -210,7 +212,7 @@ public class SirenAutoRight extends LinearOpMode
         LeftElbowServo.setDirection(Servo.Direction.FORWARD);
         RightElbowServo.setDirection(Servo.Direction.REVERSE);
         WristServo.setDirection(Servo.Direction.FORWARD);
-        IntakeServo.setDirection(CRServo.Direction.FORWARD);
+        IntakeShortServo.setDirection(CRServo.Direction.FORWARD);
 
         FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -232,6 +234,7 @@ public class SirenAutoRight extends LinearOpMode
         LeftElbowServo.setPosition(LEServoPositions[4]);
         RightElbowServo.setPosition(REServoPositions[4]);
         WristServo.setPosition(WServoPositions[2]);
+        SpecimenClawServo.setPosition(SpecimenClawPositions[0]);
         // Wait for the game to start (driver presses PLAY)
 
 
@@ -241,14 +244,13 @@ public class SirenAutoRight extends LinearOpMode
         // landscape orientation, though.
 //        webcam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(36, -67, Math.PI / 2));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(12, -67, Math.PI / 2));
 //        timer.schedule(new PutGrabberToCertainPosition(0), 3000);
-
 
         waitForStart();
         while (opModeIsActive())
         {
-
+            WristServo.setPosition(WServoPositions[0]);
             doActions(drive, sideOfFieldToStartOn);
 
             // Don't burn CPU cycles busy-looping in this sample
@@ -277,11 +279,24 @@ public class SirenAutoRight extends LinearOpMode
             return false;
         }
     }
-
+    public class Open implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            SpecimenClawServo.setPosition(SpecimenClawPositions[0]);
+            return false;
+        }
+    }
+    public class Close implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            SpecimenClawServo.setPosition(SpecimenClawPositions[1]);
+            return false;
+        }
+    }
     public class Intake implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            IntakeServo.setPower(-0.8);
+            IntakeShortServo.setPower(IServoShortPositions[0]);
             timer.schedule(new IntakeState(1), 10 * DELAY_BETWEEN_MOVES);
             return false;
         }
@@ -289,7 +304,7 @@ public class SirenAutoRight extends LinearOpMode
     public class Outtake implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            IntakeServo.setPower(0.5);
+            IntakeShortServo.setPower(IServoShortPositions[2]);
             timer.schedule(new IntakeState(1), 10 * DELAY_BETWEEN_MOVES);
             return false;
         }
@@ -349,22 +364,116 @@ public class SirenAutoRight extends LinearOpMode
                 /*.lineToY(multiplier * -33);
         actionBuilder = actionBuilder
                 .lineToX(36)
-                .strafeToConstantHeading(new Vector2d(44, multiplier * 1))
+                .strafeToConstantHeading(new Vector2d(4, multiplier * 1))
                 .waitSeconds(5)
-                .strafeToConstantHeading(new Vector2d(46, multiplier * 1))
+                .strafeToConstantHeading(new Vector2d(4, multiplier * 1))
                 .turn(multiplier * 0.00001)
                 .lineToX(60);*/
-//                Actions.runBlocking(new ParallelAction(drive.actionBuilder(drive.pose).strafeToConstantHeading(new Vector2d(-40, -33)).build(), drive.actionBuilder(drive.pose).turn(13*(Math.PI/16)).build())); god dayum this is ugly
+//                Actions.runBlocking(new ParallelAction(drive.actionBuilder(drive.pose).strafeToConstantHeading(new Vector2d(-0, -33)).build(), drive.actionBuilder(drive.pose).turn(13*(Math.PI/16)).build())); god dayum this is ugly
 //                Actions.runBlocking(new ParallelAction(actionBuilder.build(), actionBuilder.build())); //figured it out :)
 
         //pre place
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build(), actionBuilder.afterTime(0, new Move(3, 2, 8, 12)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-6, -30.5),  9 * (Math.PI /16)).build(), actionBuilder.afterTime(0, new moveArm(2, 0)).build()));
+        /*Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build(), actionBuilder.afterTime(0, new Move(3, 2, 8, 12)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-, -30.5),  9 * (Math.PI /16)).build(), actionBuilder.afterTime(0, new moveArm(2, 0)).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
         actionBuilder.setTangent(Math.PI); //tangent means angle tangent to ending position, probably, i lied i still don't know
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build() ,actionBuilder.afterTime(2, actionBuilder.splineToConstantHeading(new Vector2d(36, -55), Math.PI/2).build()).build(), actionBuilder.afterTime(3.5, new IntakeSample()).build(), actionBuilder.afterTime(1, new Outtake()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build() ,actionBuilder.afterTime(2, actionBuilder.splineToConstantHeading(new Vector2d(3, -55), Math.PI/2).build()).build(), actionBuilder.afterTime(3.5, new IntakeSample()).build(), actionBuilder.afterTime(1, new Outtake()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(actionBuilder.strafeToConstantHeading(new Vector2d(60, -60)).build());
+        Actions.runBlocking(actionBuilder.strafeToConstantHeading(new Vector2d(6, -60)).build());*/
 
+
+        //preplace
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-6, 30.5), -Math.PI/2).build(), actionBuilder.afterTime(0.2, new Neutral()).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        actionBuilder.setTangent(Math.PI/2);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(2, actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0), Math.PI/2).build()).build(), actionBuilder.afterTime(1.5, new Open()).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+
+
+        //first specimen pick up
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(31.2, -22.5), (1*Math.PI/16)).build()));
+        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(44, -23)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(50, -33), -1*(Math.PI/2)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+
+        //was drop off and re-pick up now is just outtake
+        Actions.runBlocking(new SequentialAction(actionBuilder.afterTime(0, new Outtake()).build()/*, actionBuilder.afterTime(0.2, actionBuilder.strafeToLinearHeading(new Vector2d(50, -48), Math.PI/2).build()).build())*/));
+        actionBuilder = drive.actionBuilder(drive.pose);
+//        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
+        //this is where you would pick up a new one (nick is doing this im goated)
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(40, -21.5), 0).build(), actionBuilder.afterTime(1, new moveArm(0, 0)).build()));
+        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(50, -21.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(50, -33), -1*(Math.PI/2)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(3, 0)).build(), actionBuilder.afterTime(0, new Neutral()).build(), actionBuilder.afterTime(0, new Open()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -67), new TranslationalVelConstraint(10.0)).build()));
+        //drive to specimen place idk i forgot the name
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Close()).build(), actionBuilder.afterTime(0.1, new moveArm(4, 0)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-6, 30.5), -Math.PI/2).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(2, actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0), Math.PI/2).build()).build(), actionBuilder.afterTime(1.5, new Open()).build()));
+
+        // place second specimen
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(3, 0)).build(), actionBuilder.afterTime(0, new Neutral()).build(), actionBuilder.afterTime(0, new Open()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -67), new TranslationalVelConstraint(10.0)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Close()).build(), actionBuilder.afterTime(0.1, new moveArm(4, 0)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-6, 30.5), -Math.PI/2).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(2, actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0), Math.PI/2).build()).build(), actionBuilder.afterTime(1.5, new Open()).build()));
+
+        // I will get to the rest of this later
+
+        //second specimen (doing this earlier)
+        /* Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(40, -21.5), 0).build(), actionBuilder.afterTime(1, new moveArm(0, 0)).build()));
+        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(50, -21.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(50, -52), -5*(Math.PI/16)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose); */
+
+        /* WORK ON THIS AFTER TESTING FIRST 2
+        //drop off and re-pick up
+        Actions.runBlocking(new SequentialAction(actionBuilder.afterTime(0, new Outtake()).build(), actionBuilder.afterTime(0.2, actionBuilder.strafeToLinearHeading(new Vector2d(50, -48), Math.PI/2).build()).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(3, 0)).build(), actionBuilder.afterTime(0, new Neutral()).build(), actionBuilder.afterTime(0, new Open()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -67), new TranslationalVelConstraint(10.0)).build()));
+        //drive to specimen place idk i forgot the name
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Close()).build(), actionBuilder.afterTime(0.1, new moveArm(4, 0)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-6, 30.5), -Math.PI/2).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(1.5, actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0), Math.PI/2).build()).build(), actionBuilder.afterTime(2, new Open()).build()));
+
+
+        //third specimen
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(52, -23), 0).build(), actionBuilder.afterTime(1, new moveArm(0, 1)).build(), actionBuilder.afterTime(1, new IntakeSample()).build()));
+        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(59, -25)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(50, -52), -5*(Math.PI/16)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+
+        //drop off and re-pick up
+        Actions.runBlocking(new SequentialAction(actionBuilder.afterTime(0, new Outtake()).build(), actionBuilder.afterTime(0.2, actionBuilder.strafeToLinearHeading(new Vector2d(50, -48), Math.PI/2).build()).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(3, 0)).build(), actionBuilder.afterTime(0, new Neutral()).build(), actionBuilder.afterTime(0, new Open()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -67), new TranslationalVelConstraint(10.0)).build()));
+        //drive to specimen place idk i forgot the name
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Close()).build(), actionBuilder.afterTime(0.1, new moveArm(4, 0)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-6, 30.5), -Math.PI/2).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(1.5, actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0), Math.PI/2).build()).build(), actionBuilder.afterTime(2, new Open()).build()));
+        actionBuilder = drive.actionBuilder(drive.pose);
+        */
+        //end part
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new IntakeSample()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -60)).build(), new Move(0, 0, 0, 0)));
+
+        //Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Move(0, 0, 0, 0)).build(), actionBuilder.afterTime(0, new moveArm(0, 0)).build(), actionBuilder.afterTime(0.5, new IntakeSample()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -52)).build()));
+        //Actions.runBlocking(new ParallelAction(new Move(0, 0, 0, 0), new moveArm(0, 0))); //we might be stupid
+        sleep(4000);
     }
 
     private DriveDirection getCorrectDirection(DriveDirection direction, boolean needInvert) {

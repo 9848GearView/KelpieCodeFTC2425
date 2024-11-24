@@ -78,7 +78,9 @@ public class SirenAutoNewLeft extends LinearOpMode
     private DcMotor BRMotor = null;
     private DcMotor LeftSlide = null;
     private DcMotor RightSlide = null;
-    private CRServo IntakeServo = null;
+    private CRServo IntakeLongServo = null;
+    private CRServo IntakeShortServo = null;
+    private Servo SpecimanClawServo = null;
     private Servo WristServo = null;
     private Servo LeftElbowServo = null;
     private Servo RightElbowServo = null;
@@ -89,7 +91,8 @@ public class SirenAutoNewLeft extends LinearOpMode
     private int wristIndex;
     private double[] LEServoPositions = AutoServoConstants.LEServoPositions;
     private double[] REServoPositions = AutoServoConstants.REServoPositions;
-    private double[] IServoPositions = AutoServoConstants.IServoShortPositions;
+    private double[] IServoShortPositions = AutoServoConstants.IServoShortPositions;
+    private double[] SpecimanClawPositions = AutoServoConstants.SpecimenClawPositions;
     private double[] WServoPositions = AutoServoConstants.WServoPositions;
     private int[] LSMotorPositions = AutoServoConstants.LSMotorPositions;
     private int[] RSMotorPositions = AutoServoConstants.RSMotorPositions;
@@ -135,7 +138,7 @@ public class SirenAutoNewLeft extends LinearOpMode
             this.i = i;
         }
         public void run() {
-            IntakeServo.setPower(IServoPositions[i]);
+            IntakeShortServo.setPower(IServoShortPositions[i]);
         }
     }
 
@@ -188,7 +191,7 @@ public class SirenAutoNewLeft extends LinearOpMode
         LeftElbowServo = hardwareMap.get(Servo.class, "LE");
         RightElbowServo = hardwareMap.get(Servo.class, "RE");
         WristServo = hardwareMap.get(Servo.class, "WS");
-        IntakeServo = hardwareMap.get(CRServo.class, "IN");
+        IntakeShortServo = hardwareMap.get(CRServo.class, "IS");
 
         FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -209,7 +212,7 @@ public class SirenAutoNewLeft extends LinearOpMode
         LeftElbowServo.setDirection(Servo.Direction.FORWARD);
         RightElbowServo.setDirection(Servo.Direction.REVERSE);
         WristServo.setDirection(Servo.Direction.FORWARD);
-        IntakeServo.setDirection(CRServo.Direction.FORWARD);
+        IntakeShortServo.setDirection(CRServo.Direction.FORWARD);
 
         FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -280,7 +283,7 @@ public class SirenAutoNewLeft extends LinearOpMode
     public class Intake implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            IntakeServo.setPower(IServoPositions[0]);
+            IntakeShortServo.setPower(IServoShortPositions[0]);
             timer.schedule(new IntakeState(1), 10 * DELAY_BETWEEN_MOVES);
             return false;
         }
@@ -288,7 +291,7 @@ public class SirenAutoNewLeft extends LinearOpMode
     public class Outtake implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            IntakeServo.setPower(IServoPositions[2]);
+            IntakeShortServo.setPower(IServoShortPositions[2]);
             timer.schedule(new IntakeState(1), 10 * DELAY_BETWEEN_MOVES);
             return false;
         }
@@ -339,7 +342,7 @@ public class SirenAutoNewLeft extends LinearOpMode
         if (needInvert) {
             multiplier = -1;
         }
-        timer.schedule(new LowerArmToCertainServoPosition(4),  2 * DELAY_BETWEEN_MOVES);
+        timer.schedule(new LowerArmToCertainServoPosition(4),  3 * DELAY_BETWEEN_MOVES);
         timer.schedule(new MoveWristServoPosition(0), 0 * DELAY_BETWEEN_MOVES);
 
 

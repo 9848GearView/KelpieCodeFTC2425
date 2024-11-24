@@ -73,7 +73,7 @@ public class SirenTeleOp extends LinearOpMode {
     private CRServo IntakeLongServo = null;
     private CRServo IntakeShortServo = null;
     private Servo WristServo = null;
-    private Servo SpecimanClawServo = null;
+    private Servo SpecimenClawServo = null;
     private Servo LeftElbowServo = null;
     private Servo RightElbowServo = null;
 
@@ -98,7 +98,7 @@ public class SirenTeleOp extends LinearOpMode {
     private double[] WServoPositions = TeleOpServoConstants.WServoPositions;
     private double[] IServoShortPositions = TeleOpServoConstants.IServoShortPositions;
     private double[] IServoLongPositions = TeleOpServoConstants.IServoLongPositions;
-    private double[] SpecimanClawPositions = TeleOpServoConstants.SpecimenClawPositions;
+    private double[] SpecimenClawPositions = TeleOpServoConstants.SpecimenClawPositions;
     private double[] SlowModeSpeed = TeleOpServoConstants.SlowModeSpeed;
 
 
@@ -173,7 +173,7 @@ public class SirenTeleOp extends LinearOpMode {
         WristServo = hardwareMap.get(Servo.class, "WS");
         IntakeShortServo = hardwareMap.get(CRServo.class, "IS");
         IntakeLongServo = hardwareMap.get(CRServo.class, "IL");
-        SpecimanClawServo = hardwareMap.get(Servo.class, "SC");
+        SpecimenClawServo = hardwareMap.get(Servo.class, "SC");
         Timer timer = new Timer();
 
         FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -203,7 +203,7 @@ public class SirenTeleOp extends LinearOpMode {
         WristServo.setDirection(Servo.Direction.FORWARD);
         IntakeShortServo.setDirection(CRServo.Direction.FORWARD);
         IntakeLongServo.setDirection(CRServo.Direction.FORWARD);
-        SpecimanClawServo.setDirection(Servo.Direction.FORWARD);
+        SpecimenClawServo.setDirection(Servo.Direction.FORWARD);
 
         FLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -384,9 +384,9 @@ public class SirenTeleOp extends LinearOpMode {
             boolean lBumperPressed = gamepad2.left_bumper;
             boolean rBumperPressed = gamepad2.right_bumper;
             if (lBumperPressed && !oldLBumper && index == 0 && !isArmMoving) { //open
-                SpecimanClawServo.setPosition(SpecimanClawPositions[0]);
+                SpecimenClawServo.setPosition(SpecimenClawPositions[0]);
             } else if (rBumperPressed && !oldRBumper && index == 0 && !isArmMoving) {//close
-                SpecimanClawServo.setPosition((SpecimanClawPositions[1]));
+                SpecimenClawServo.setPosition((SpecimenClawPositions[1]));
             }
 
 
