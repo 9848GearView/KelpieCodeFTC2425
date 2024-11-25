@@ -6,7 +6,7 @@ public class AutoServoConstants {
     public static final double[] WServoPositions = {0.0, 0.95, 0.63, 0.9}; // use position 1*** to init as well as normal functions
     public static final double[] IServoShortPositions = {-1.0, 0, 0.45};
     public static final double[] IServoLongPositions = {-1.0, 0, 0.45};
-    public static final double[] SpecimenClawPositions = {0, 0.5}; //open/close};
+    public static final double[] SpecimenClawPositions = {1.0, -1.0}; //open/close};
     public static final int[] LSMotorPositions = {0, 2400, 1100, 250, 1800};
     public static final int[] RSMotorPositions = {0, 2400, 1100, 250, 1800};
 }
