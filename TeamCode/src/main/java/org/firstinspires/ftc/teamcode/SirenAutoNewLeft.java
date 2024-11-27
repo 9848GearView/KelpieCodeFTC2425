@@ -371,10 +371,10 @@ public class SirenAutoNewLeft extends LinearOpMode
         actionBuilder = drive.actionBuilder(drive.pose);
 
         //first sample
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-31.2, -22.5), (15*Math.PI/16)).build(), actionBuilder.afterTime(0, new moveArm(0, 7)).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(-33.2, -22.5), (15*Math.PI/16)).build(), actionBuilder.afterTime(0, new moveArm(0, 7)).build()));
         Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-44, -23)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-47, -23)).build(), actionBuilder.afterTime(0, new Intake()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
         Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-50, -52), 21*(Math.PI/16)).build(), actionBuilder.afterTime(0, new moveArm(1, 0)).build(), actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
@@ -385,10 +385,10 @@ public class SirenAutoNewLeft extends LinearOpMode
         actionBuilder = drive.actionBuilder(drive.pose);
 
         //second sample
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-40, -21.5), (Math.PI)).build(), actionBuilder.afterTime(1, new moveArm(0, 1)).build(), actionBuilder.afterTime(1, new IntakeSample()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-44, -21.5), (Math.PI)).build(), actionBuilder.afterTime(1, new moveArm(0, 1)).build(), actionBuilder.afterTime(1, new IntakeSample()).build()));
         Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-50, -21.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-54, -21.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
         Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-50, -52), 21*(Math.PI/16)).build(), actionBuilder.afterTime(0, new moveArm(1, 0)).build(), actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
@@ -399,10 +399,10 @@ public class SirenAutoNewLeft extends LinearOpMode
         actionBuilder = drive.actionBuilder(drive.pose);
 
         //third sample
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-52, -23), (Math.PI)).build(), actionBuilder.afterTime(1, new moveArm(0, 1)).build(), actionBuilder.afterTime(1, new IntakeSample()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-56, -23), (Math.PI)).build(), actionBuilder.afterTime(1, new moveArm(0, 1)).build(), actionBuilder.afterTime(1, new IntakeSample()).build()));
         Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-59, -25)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(-63, -25)).build(), actionBuilder.afterTime(0, new Intake()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
         Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(-50, -52), 21*(Math.PI/16)).build(), actionBuilder.afterTime(0, new moveArm(1, 0)).build(), actionBuilder.afterTime(0, new PlaceSampleIntoBucket()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);

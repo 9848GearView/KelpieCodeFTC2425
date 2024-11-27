@@ -400,50 +400,56 @@ public class SirenAutoRight extends LinearOpMode
 
 
         //preplace
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(6, -30.5), Math.PI/2).build(), actionBuilder.afterTime(0.2, new Neutral()).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(6, -31.5), Math.PI/2).build(), actionBuilder.afterTime(0.2, new PlaceSampleIntoBucket()).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
         actionBuilder.setTangent(Math.PI/2);
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(2, actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0), Math.PI/2).build()).build(), actionBuilder.afterTime(1.5, new Open()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(6, -40), Math.PI/2).build(), actionBuilder.strafeToLinearHeading(new Vector2d(36,-48.5), Math.PI/2).build(), actionBuilder.afterTime(1.5, new Open()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
 
 
         //first specimen pick up
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(31.2, -22.5), (1*Math.PI/16)).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(29, -31), (1*Math.PI/16)).build()));
         Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(44, -23)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(38, -21)).build(), actionBuilder.afterTime(0, new Intake()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(50, -45), -1*(Math.PI/2)).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(50, -49.5), -1*(Math.PI/2)).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
 
         //was drop off and re-pick up now is just outtake
-        Actions.runBlocking(new SequentialAction(actionBuilder.afterTime(1, new Outtake()).build()/*, actionBuilder.afterTime(0.2, actionBuilder.strafeToLinearHeading(new Vector2d(50, -48), Math.PI/2).build()).build())*/));
-        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new SequentialAction(actionBuilder.afterTime(0, new Outtake()).build()/*, actionBuilder.afterTime(0.2, actionBuilder.strafeToLinearHeading(new Vector2d(50, -48), Math.PI/2).build()).build())*/));
+//        actionBuilder = drive.actionBuilder(drive.pose);
 //        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
-        //this is where you would pick up a new one (nick is doing this im goated)
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(40, -21.5), 0).build(), actionBuilder.afterTime(1, new moveArm(0, 0)).build()));
-        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(50, -21.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(50, -33), -1*(Math.PI/2)).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
+//        //this is where you would pick up a new one (nick is doing this im goated)
+        // specimen 2 pick up
+//        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(1, new IntakeSample()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(42, -21.5), 0).build(), actionBuilder.afterTime(1, new moveArm(0, 0)).build()));
+//        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
+//        actionBuilder = drive.actionBuilder(drive.pose);
+//        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToConstantHeading(new Vector2d(52, -23.5)).build(), actionBuilder.afterTime(0, new Intake()).build()));
+//        actionBuilder = drive.actionBuilder(drive.pose);
+//        Actions.runBlocking(new ParallelAction(actionBuilder.strafeToLinearHeading(new Vector2d(50, -48), -1*(Math.PI/2)).build(), actionBuilder.afterTime(1, new Outtake()).build()));
+//        actionBuilder = drive.actionBuilder(drive.pose);
+//        Actions.runBlocking(actionBuilder.waitSeconds(0.5).build());
 
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(3, 0)).build(), actionBuilder.afterTime(0, new Neutral()).build(), actionBuilder.afterTime(0, new Open()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -67), new TranslationalVelConstraint(10.0)).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build(), actionBuilder.afterTime(0, new Move(0, 0, 0,0 )).build(), actionBuilder.afterTime(0, new Open()).build(), actionBuilder.strafeToLinearHeading(new Vector2d(50, -65), -1*(Math.PI/2)).build())); //new TranslationalVelConstraint(10.0)).build());;
         //drive to specimen place idk i forgot the name
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Close()).build(), actionBuilder.afterTime(0.1, new moveArm(4, 0)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(6, -30.5), -Math.PI/2).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
+        Actions.runBlocking(actionBuilder.strafeToConstantHeading(new Vector2d(50, -68.5), new TranslationalVelConstraint(2.0)).build());
         actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(2, actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0), Math.PI/2).build()).build(), actionBuilder.afterTime(1.5, new Open()).build()));
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Close()).build(), actionBuilder.afterTime(0.5, new moveArm(4, 0)).build()));
+        Actions.runBlocking(actionBuilder.waitSeconds(1).build());
+        Actions.runBlocking(actionBuilder.strafeToLinearHeading(new Vector2d(-6, -30.5), Math.PI/2).build());
+        actionBuilder = drive.actionBuilder(drive.pose);
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(2, /*actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0),*/actionBuilder.strafeToLinearHeading(new Vector2d(36, -48.5), Math.PI/2).build()).build(), actionBuilder.afterTime(.5, new Open()).build()));
         actionBuilder = drive.actionBuilder(drive.pose);
 
         // place second specimen
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(3, 0)).build(), actionBuilder.afterTime(0, new Neutral()).build(), actionBuilder.afterTime(0, new Open()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -67), new TranslationalVelConstraint(10.0)).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Close()).build(), actionBuilder.afterTime(0.1, new moveArm(4, 0)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(6, -30.5), -Math.PI/2).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
-        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(2, actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0), Math.PI/2).build()).build(), actionBuilder.afterTime(1.5, new Open()).build()));
-        actionBuilder = drive.actionBuilder(drive.pose);
+//        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0, 0)).build(), actionBuilder.afterTime(0, new Neutral()).build(), actionBuilder.afterTime(0, new Open()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -67)/, new TranslationalVelConstraint(10.0)*/).build()));
+//        actionBuilder = drive.actionBuilder(drive.pose);
+//        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Close()).build(), actionBuilder.afterTime(0.1, new moveArm(4, 0)).build(), actionBuilder.strafeToLinearHeading(new Vector2d(6, -30.5), -Math.PI/2).build(), actionBuilder.afterTime(0, new moveArm(4, 0)).build()));
+//        actionBuilder = drive.actionBuilder(drive.pose);
+//        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new moveArm(0,0)).build(), actionBuilder.afterTime(2, actionBuilder.splineToLinearHeading(new Pose2d(36, -48, 0), Math.PI/2).build()).build(), actionBuilder.afterTime(1.5, new Open()).build()));
+//        actionBuilder = drive.actionBuilder(drive.pose);
         // I will get to the rest of this later
 
         //second specimen (doing this earlier)
@@ -490,8 +496,8 @@ public class SirenAutoRight extends LinearOpMode
         //end part
         Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new IntakeSample()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -60)).build(), new Move(0, 0, 0, 0)));
 
-        //Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Move(0, 0, 0, 0)).build(), actionBuilder.afterTime(0, new moveArm(0, 0)).build(), actionBuilder.afterTime(0.5, new IntakeSample()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -52)).build()));
-        //Actions.runBlocking(new ParallelAction(new Move(0, 0, 0, 0), new moveArm(0, 0))); //we might be stupid
+        Actions.runBlocking(new ParallelAction(actionBuilder.afterTime(0, new Move(0, 0, 0, 0)).build(), actionBuilder.afterTime(0, new moveArm(0, 0)).build(), actionBuilder.afterTime(0.5, new IntakeSample()).build(), actionBuilder.strafeToConstantHeading(new Vector2d(50, -52)).build()));
+        Actions.runBlocking(new ParallelAction(new Move(0, 0, 0, 0), new moveArm(0, 0))); //we might be stupid
         sleep(4000);
     }
 
